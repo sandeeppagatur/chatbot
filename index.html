@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Context-Aware Chatbot</title>
+    <style>
+        body { font-family: Arial; margin: 30px; }
+        .chat { margin-bottom: 1em; }
+        .user, .bot { margin: 0.5em 0; }
+        .user { color: blue; }
+        .bot { color: green; }
+        #category { margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h2>Customer Support Chatbot</h2>
+
+    <label for="category">Select a Category:</label>
+    <select id="category">
+        <option value="General">General</option>
+        <option value="Technical">Technical</option>
+        <option value="Billing">Billing</option>
+        <option value="Account">Account</option>
+    </select>
+
+    <div id="chat" class="chat"></div>
+    <input type="text" id="message" placeholder="Type your message..." size="50" />
+    <button onclick="sendMessage()">Send</button>
+
+    <script>
+        async function sendMessage() {
+            const msgBox = document.getElementById("message");
+            const category = document.getElementById("category").value;
+            const message = msgBox.value.trim();
+            if (!message) return alert("Please enter a message.");
+
+            document.getElementById("chat").innerHTML += `<div class="user"><strong>You:</strong> ${message} <em>(${category})</em></div>`;
+            msgBox.value = "";
+
+            try {
+                const response = await fetch("/analyze", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message, category })
+                });
+
+                if (!response.ok) {
+                    throw new Error("Server error: " + response.statusText);
+                }
+
+                const data = await response.json();
+                document.getElementById("chat").innerHTML += `<div class="bot"><strong>Bot:</strong> ${data.response} <em>(${data.sentiment}, confidence: ${data.confidence})</em></div>`;
+            } catch (error) {
+                alert("Error: " + error.message);
+                console.error(error);
+            }
+        }
+    </script>
+</body>
+</html>
