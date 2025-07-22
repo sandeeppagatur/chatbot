@@ -1,0 +1,7 @@
+flask
+transformers
+sentence-transformers
+faiss-cpu
+scikit-learn
+numpy
+torch
